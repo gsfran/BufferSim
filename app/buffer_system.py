@@ -20,10 +20,10 @@ class BufferSystem:
         self.xfer = TransferCarriage(self.max_height)
 
     def part_at_bottom_of_inlet(self) -> bool:
-        return self.inlet.contents[4]
+        return self.conveyor.contents[4]
 
     def part_at_bottom_of_outlet(self) -> bool:
-        return self.outlet.contents[5]
+        return self.conveyor.contents[5]
 
     def draw(self, window: Surface) -> None:
         screen_width, screen_height = window.get_size()
