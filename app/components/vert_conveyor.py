@@ -12,12 +12,12 @@ class VertConveyor:
     A vertical indexing conveyor which raises and lowers parts
     from the main horizontal conveyor.
 
-    The buffer system consists of two (2) vertical conveyors, 
+    The buffer system consists of two (2) vertical conveyors,
     along with a mechanism capable of transferring a part
     from one of these vertical conveyors to the other.
 
     The inlet side lifts parts up from the main conveyor,
-    staging them for transfer to the outlet conveyor. 
+    staging them for transfer to the outlet conveyor.
 
     The outlet conveyor receives parts from the inlet conveyor,
     and lowers them onto the main horizontal conveyor when it can.

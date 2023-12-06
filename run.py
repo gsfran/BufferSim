@@ -1,7 +1,7 @@
 import pygame
 
 from app import FPS, WINDOW
-from app.buffer import BufferSystem
+from app.buffer import BufferSystem, HORIZONTAL_CYCLE_EVENT
 from app.colors import BG_COLOR
 from app.events import handle_event
 
@@ -9,7 +9,8 @@ from app.events import handle_event
 def main() -> None:
 
     clock = pygame.time.Clock()
-    buffer = BufferSystem(20)
+    buffer = BufferSystem(40)
+    pygame.time.set_timer(HORIZONTAL_CYCLE_EVENT, buffer.cycle_time)
 
     run = True
     while run:
