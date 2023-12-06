@@ -1,19 +1,22 @@
 import pygame
 
-from app import WINDOW, BACKGROUND
-from app.buffer_system import BufferSystem
+from app import FPS, WINDOW
+from app.buffer import BufferSystem
+from app.colors import BG_COLOR
+from app.events import handle_event
 
 
 def main() -> None:
-    run = True
+
     clock = pygame.time.Clock()
+    buffer = BufferSystem(20)
 
-    buffer = BufferSystem(10)
-
+    run = True
     while run:
 
-        clock.tick(60)
-        WINDOW.fill(BACKGROUND)
+        clock.tick(FPS)
+
+        WINDOW.fill(BG_COLOR)
 
         buffer.draw(WINDOW)
         pygame.display.update()
@@ -21,7 +24,9 @@ def main() -> None:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                break
 
+            handle_event(buffer, event)
 
     pygame.quit()
 
