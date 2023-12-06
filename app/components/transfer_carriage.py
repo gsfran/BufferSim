@@ -21,8 +21,8 @@ class XferCarriage:
         self.height = pitch_height / 5
 
         x_pos = buffer_rect.left
-        y_pos = buffer_rect.bottom - (pitch_height * (self.position + 1))
-        
+        y_pos = buffer_rect.bottom - (pitch_height * (self.position + 0.5))
+
         self.rect = Rect(x_pos, y_pos, self.width, self.height)
 
         corners = [
