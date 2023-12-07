@@ -9,8 +9,7 @@ from app.events import handle_event
 def main() -> None:
 
     clock = pygame.time.Clock()
-    buffer = BufferSystem(40)
-    pygame.time.set_timer(HORIZ_CYCLE_EVENT, buffer.cycle_time)
+    buffer = BufferSystem(20)
 
     run = True
     while run:
