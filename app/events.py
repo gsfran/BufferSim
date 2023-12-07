@@ -5,6 +5,7 @@ from app.buffer import (BufferSystem, HORIZ_CYCLE_EVENT,
 
 
 def handle_event(buffer: BufferSystem, event: pygame.event.Event) -> None:
+def handle_event(buffer: BufferSystem, event: pygame.event.Event) -> None:
 
     if event.type == pygame.KEYDOWN:
         if event.key == pygame.K_SPACE:
