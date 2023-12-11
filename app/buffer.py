@@ -167,10 +167,6 @@ class BufferSystem:
         if self.part_at_inlet_top and not self.part_at_outlet_top:
             self.transfer_push()
 
-        # pygame.time.delay(self.cycle_time // 2)
-        # vertical_cycle_event = pygame.event.Event(VERT_CYCLE_EVENT, {})
-        # pygame.event.post(vertical_cycle_event)
-
     def vertical_cycle(self) -> None:
 
         if not self.part_at_outlet_bottom and not self.downstream_fault:
