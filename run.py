@@ -3,7 +3,7 @@ from sys import exit
 import pygame
 
 from app import FPS, WINDOW
-from app.buffer import HORIZ_CYCLE_EVENT, BufferSystem
+from app.buffer import HORIZ_CYCLE_EVENT, VERT_CYCLE_EVENT, BufferSystem
 from app.colors import BG_COLOR
 from app.events import handle_event
 
@@ -11,8 +11,10 @@ from app.events import handle_event
 def main() -> None:
 
     clock = pygame.time.Clock()
-    buffer = BufferSystem(20)
+    buffer = BufferSystem(40)
     pygame.time.set_timer(HORIZ_CYCLE_EVENT, buffer.cycle_time)
+    pygame.time.delay(buffer.cycle_time // 2)
+    pygame.time.set_timer(VERT_CYCLE_EVENT, buffer.cycle_time)
 
     while True:
 
@@ -23,7 +25,6 @@ def main() -> None:
         pygame.display.update()
 
         for event in pygame.event.get():
-            # print(event)
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
