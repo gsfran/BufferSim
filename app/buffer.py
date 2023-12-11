@@ -12,13 +12,15 @@ from .components import HorizConveyor, VertConveyor, XferCarriage
 HORIZ_CYCLE_EVENT = pygame.USEREVENT
 VERT_CYCLE_EVENT = pygame.USEREVENT + 1
 
+autocycle_events = [HORIZ_CYCLE_EVENT, VERT_CYCLE_EVENT]
+
 
 class BufferSystem:
 
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity
         self.max_pos = (capacity / 2) - 1
-        self.cycle_time = 500  # ms
+        self.cycle_time = 100  # ms
 
         self.width = SCREEN_WIDTH / 5
         self.height = SCREEN_HEIGHT * 0.8
@@ -166,8 +168,8 @@ class BufferSystem:
             self.transfer_push()
 
         # pygame.time.delay(self.cycle_time // 2)
-        vertical_cycle_event = pygame.event.Event(VERT_CYCLE_EVENT, {})
-        pygame.event.post(vertical_cycle_event)
+        # vertical_cycle_event = pygame.event.Event(VERT_CYCLE_EVENT, {})
+        # pygame.event.post(vertical_cycle_event)
 
     def vertical_cycle(self) -> None:
 
