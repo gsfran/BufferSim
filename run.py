@@ -12,10 +12,10 @@ from app.events import handle_event
 def main() -> None:
 
     clock = pygame.time.Clock()
-    buffer = BufferSystem(40)
+    buffer = BufferSystem(150)
     pygame.time.set_timer(CURRENT_CYCLE_EVENT, buffer.cycle_time)
     pygame.time.set_timer(HORIZ_CYCLE_EVENT, buffer.cycle_time)
-    pygame.time.delay(buffer.cycle_time // 2)
+    pygame.time.delay(int(buffer.cycle_time / 2))
     pygame.time.set_timer(VERT_CYCLE_EVENT, buffer.cycle_time)
 
     while True:

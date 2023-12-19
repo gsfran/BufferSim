@@ -18,18 +18,19 @@ class BufferSystem:
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity
         self.max_pos = (capacity / 2) - 1
-        self.new_cycle = False
-        self.cycle_time = 100  # ms
+        self.new_logic = False
+        self.cycle_time = 200  # ms
 
         self.width = SCREEN_WIDTH / 5
         self.height = SCREEN_HEIGHT * 0.8
         self.pitch_height = self.height / (self.capacity / 2)
-        self.part_height = self.pitch_height / 5
+        self.part_height = self.pitch_height / 2
 
         self.inlet_pos = 4
         self.outlet_pos = 5
-        self.auto_cycle: bool = True
-        self.downstream_fault: bool = False
+        self.autorun: bool = True
+        self.downstream_paused: bool = False
+        self.upstream_paused: bool = True
         self.build()
 
     def build(self) -> None:
@@ -96,6 +97,10 @@ class BufferSystem:
 
     def reset(self) -> None:
         self.build()
+    
+    def quit(self) -> None:
+        pygame.quit()
+        exit()
 
     def index_inlet(self) -> None:
 
@@ -136,7 +141,7 @@ class BufferSystem:
 
     def index_conveyor(self) -> None:
 
-        if randint(0, 100) % 3:
+        if randint(0, 100) % 3 and not self.upstream_paused:
             new_part = True
         else:
             new_part = False
@@ -155,15 +160,18 @@ class BufferSystem:
         else:
             self.xfer.move_down()
 
-    def toggle_autocycle(self) -> None:
-        self.auto_cycle = not self.auto_cycle
+    def toggle_autorun(self) -> None:
+        self.autorun = not self.autorun
 
-    def toggle_newcycle(self) -> None:
-        self.new_cycle = not self.new_cycle
+    def toggle_newlogic(self) -> None:
+        self.new_logic = not self.new_logic
         self.reset()
 
-    def toggle_fault(self) -> None:
-        self.downstream_fault = not self.downstream_fault
+    def toggle_downstream(self) -> None:
+        self.downstream_paused = not self.downstream_paused
+    
+    def toggle_upstream(self) -> None:
+        self.upstream_paused = not self.upstream_paused
 
     def horizontal_cycle(self) -> None:
 
@@ -175,7 +183,7 @@ class BufferSystem:
 
     def vertical_cycle(self) -> None:
 
-        if not self.part_at_outlet_bottom and not self.downstream_fault:
+        if not self.part_at_outlet_bottom and not self.downstream_paused:
             self.index_outlet()
 
         if self.xfer.position < self.max_pos and (
@@ -183,7 +191,7 @@ class BufferSystem:
         ):
             self.move_xfer_up()
 
-        if self.part_at_inlet_bottom and self.downstream_fault:
+        if self.part_at_inlet_bottom and self.downstream_paused:
             self.index_inlet()
 
         if self.xfer.position > 1 and not (
@@ -203,9 +211,9 @@ class BufferSystem:
             if self.xfer.position < self.max_pos and self.part_at_inlet_top:
                 self.move_xfer_up()
             self.index_inlet()
-            if not self.downstream_fault:
+            if not self.downstream_paused:
                 self.index_outlet()
-                
+
             if self.xfer.position > 1 and not (
                 self.part_at_inlet_top or self.part_at_outlet_top
             ):
@@ -216,3 +224,5 @@ class BufferSystem:
             # Pusher
             if self.part_at_inlet_top and not self.part_at_outlet_top:
                 self.transfer_push()
+
+            pygame.time.delay(delay_time)
