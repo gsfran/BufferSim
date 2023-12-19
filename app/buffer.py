@@ -8,11 +8,9 @@ from . import SCREEN_HEIGHT, SCREEN_WIDTH
 from .colors import BLACK, GREY
 from .components import HorizConveyor, VertConveyor, XferCarriage
 
-
 HORIZ_CYCLE_EVENT = pygame.USEREVENT
 VERT_CYCLE_EVENT = pygame.USEREVENT + 1
-
-autocycle_events = [HORIZ_CYCLE_EVENT, VERT_CYCLE_EVENT]
+CURRENT_CYCLE_EVENT = pygame.USEREVENT + 2
 
 
 class BufferSystem:
@@ -20,6 +18,7 @@ class BufferSystem:
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity
         self.max_pos = (capacity / 2) - 1
+        self.new_cycle = False
         self.cycle_time = 100  # ms
 
         self.width = SCREEN_WIDTH / 5
@@ -95,6 +94,9 @@ class BufferSystem:
         ]
         draw.line(window, BLACK, *center_line)
 
+    def reset(self) -> None:
+        self.build()
+
     def index_inlet(self) -> None:
 
         if self.part_at_inlet_top:
@@ -156,6 +158,10 @@ class BufferSystem:
     def toggle_autocycle(self) -> None:
         self.auto_cycle = not self.auto_cycle
 
+    def toggle_newcycle(self) -> None:
+        self.new_cycle = not self.new_cycle
+        self.reset()
+
     def toggle_fault(self) -> None:
         self.downstream_fault = not self.downstream_fault
 
@@ -184,3 +190,29 @@ class BufferSystem:
             self.part_at_inlet_top or self.part_at_outlet_top
         ):
             self.move_xfer_down()
+
+    def old_cycle(self) -> None:
+
+        delay_time = int(self.cycle_time / 4)
+
+        if not self.buffer_full:
+            # Conveyor index
+            self.index_conveyor()
+            pygame.time.delay(delay_time)
+            # Inlet/Outlet index
+            if self.xfer.position < self.max_pos and self.part_at_inlet_top:
+                self.move_xfer_up()
+            self.index_inlet()
+            if not self.downstream_fault:
+                self.index_outlet()
+                
+            if self.xfer.position > 1 and not (
+                self.part_at_inlet_top or self.part_at_outlet_top
+            ):
+                self.move_xfer_down()
+
+            pygame.time.delay(delay_time)
+
+            # Pusher
+            if self.part_at_inlet_top and not self.part_at_outlet_top:
+                self.transfer_push()
