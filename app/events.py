@@ -1,14 +1,16 @@
-import pygame
-
 from datetime import datetime as dt
 
-from app.buffer import BufferSystem, HORIZ_CYCLE_EVENT, VERT_CYCLE_EVENT
+import pygame
+
+from app.buffer import HORIZ_CYCLE_EVENT, VERT_CYCLE_EVENT, BufferSystem
 
 
-def handle_event(buffer: BufferSystem, event: pygame.event.Event) -> None:
+def handle_event(
+    buffer: BufferSystem, event: pygame.event.Event, speed: float
+) -> None:
 
     if event.type == pygame.KEYDOWN:
-        handle_input(buffer=buffer, event=event)
+        handle_input(buffer=buffer, event=event, speed=speed)
 
     elif buffer.auto_cycle:
         if event.type == HORIZ_CYCLE_EVENT:
@@ -20,17 +22,25 @@ def handle_event(buffer: BufferSystem, event: pygame.event.Event) -> None:
             buffer.vertical_cycle()
 
 
-def handle_input(buffer: BufferSystem, event: pygame.event.Event) -> None:
+def handle_input(
+    buffer: BufferSystem, event: pygame.event.Event, speed: float
+) -> None:
 
     INPUT_DICT = {
         pygame.K_SPACE: buffer.index_conveyor,
+
         pygame.K_d: buffer.index_inlet,
         pygame.K_a: buffer.index_outlet,
+
         pygame.K_LEFT: buffer.transfer_push,
         pygame.K_UP: buffer.move_xfer_up,
         pygame.K_DOWN: buffer.move_xfer_down,
+
         pygame.K_p: buffer.toggle_autocycle,
-        pygame.K_f: buffer.toggle_fault
+        pygame.K_f: buffer.toggle_fault,
+
+        pygame.K_PLUS: buffer.speed_up,
+        pygame.K_MINUS: buffer.speed_down
     }
 
     if event.key in INPUT_DICT.keys():

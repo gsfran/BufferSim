@@ -4,10 +4,9 @@ import pygame
 from pygame import Rect, draw
 from pygame.surface import Surface
 
-from . import SCREEN_HEIGHT, SCREEN_WIDTH
+from . import SCREEN_HEIGHT, SCREEN_WIDTH, FPS, SPEEDS
 from .colors import BLACK, GREY
 from .components import HorizConveyor, VertConveyor, XferCarriage
-
 
 HORIZ_CYCLE_EVENT = pygame.USEREVENT
 VERT_CYCLE_EVENT = pygame.USEREVENT + 1
@@ -20,12 +19,13 @@ class BufferSystem:
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity
         self.max_pos = (capacity / 2) - 1
-        self.cycle_time = 100  # ms
+        self.speed = SPEEDS[0]  # sim speed
+        self.cycle_time = int(3000 / self.speed)  # ms
 
         self.width = SCREEN_WIDTH / 5
         self.height = SCREEN_HEIGHT * 0.8
         self.pitch_height = self.height / (self.capacity / 2)
-        self.part_height = self.pitch_height / 5
+        self.part_height = self.pitch_height / 2
 
         self.inlet_pos = 4
         self.outlet_pos = 5
@@ -94,6 +94,23 @@ class BufferSystem:
             (self.rect.centerx, self.rect.bottom)
         ]
         draw.line(window, BLACK, *center_line)
+
+    def speed_up(self) -> None:
+        if self.speed < SPEEDS[:]:
+            self.speed *= 2
+            self.cycle_time /= 2
+            self.reset_timers()
+
+    def speed_down(self) -> None:
+        if self.speed > SPEEDS[0]:
+            self.speed /= 2
+            self.cycle_time *= 2
+            self.reset_timers()
+
+    def reset_timers(self) -> None:
+        pygame.time.set_timer(HORIZ_CYCLE_EVENT, int(self.cycle_time))
+        pygame.time.delay(int(self.cycle_time / 2))
+        pygame.time.set_timer(VERT_CYCLE_EVENT, int(self.cycle_time))
 
     def index_inlet(self) -> None:
 
