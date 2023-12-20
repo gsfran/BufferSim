@@ -3,8 +3,8 @@ from __future__ import annotations
 from pygame import Rect, draw
 from pygame.surface import Surface
 
-from app.config import SCREEN_HEIGHT, SCREEN_WIDTH
 from app.colors import BLACK, DARK_GREY, WHITE
+from app.config import HORIZ_CONV_CAPACITY, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
 class HorizConveyor:
@@ -23,7 +23,7 @@ class HorizConveyor:
     """
 
     def __init__(self, part_height: int) -> None:
-        self.capacity = 10
+        self.capacity = HORIZ_CONV_CAPACITY
         self.part_height = part_height
         self.build()
 

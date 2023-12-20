@@ -1,14 +1,12 @@
 from random import randint
 from types import MethodType
 
-import pygame
-from pygame import Rect, draw
+from pygame import Rect, draw, quit
 from pygame.surface import Surface
 
-from .config import SCREEN_HEIGHT, SCREEN_WIDTH
 from .colors import BLACK, GREY
 from .components import HorizConveyor, VertConveyor, XferCarriage
-
+from .config import HORIZ_CONV_CAPACITY, SCREEN_HEIGHT, SCREEN_WIDTH
 
 BASE_CYCLE_TIME = 3000  # ms
 TOTAL_CAPACITY = 150
@@ -22,14 +20,14 @@ class BufferSystem:
         self.speed = 1.0  # sim speed
         self.logic = 0  # buffer logic selection
 
-        self.width = SCREEN_WIDTH / 5
+        self.width = SCREEN_WIDTH / (HORIZ_CONV_CAPACITY / 2)
         self.height = SCREEN_HEIGHT * 0.8
         self.pitch_height = self.height / (self.capacity / 2)  # 1 pitch = 10mm
         self.scale = self.pitch_height / 10  # pixels per 1 mm
-        self.part_height = self.pitch_height / 2
+        self.part_height = self.pitch_height / 1
 
-        self.inlet_pos = 4
-        self.outlet_pos = 5
+        self.inlet_pos = int(HORIZ_CONV_CAPACITY / 2) - 1
+        self.outlet_pos = int(HORIZ_CONV_CAPACITY / 2)
         self.autorun: bool = True
         self.downstream_paused: bool = False
         self.upstream_paused: bool = True
@@ -51,7 +49,7 @@ class BufferSystem:
         self.build()
 
     def quit(self) -> None:
-        pygame.quit()
+        quit()
         exit()
 
     def draw(self, window: Surface) -> None:
@@ -75,11 +73,7 @@ class BufferSystem:
                        pitch_height=self.pitch_height)
 
         draw.lines(window, BLACK, True, self.corners)
-        center_line = [
-            (self.rect.centerx, self.rect.top),
-            (self.rect.centerx, self.rect.bottom)
-        ]
-        draw.line(window, BLACK, *center_line)
+        draw.line(window, BLACK, self.rect.midtop, self.rect.midbottom)
 
     def manual_control(self, move_command: MethodType) -> None:
         """

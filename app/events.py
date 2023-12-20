@@ -91,6 +91,9 @@ def speed_down() -> None:
 def reset_timers(cycle_time: int) -> None:
     # current logic
     if buffer.logic == 0:
+        pygame.time.set_timer(HORIZ_CYCLE_EVENT, 0)
+        pygame.time.set_timer(VERT_CYCLE_EVENT, 0)
+
         pygame.time.set_timer(CURRENT_CYCLE_CONV_EVENT, cycle_time)
         pygame.time.delay(int(cycle_time / 3))
         pygame.time.set_timer(CURRENT_CYCLE_VERT_EVENT, cycle_time)
@@ -99,6 +102,10 @@ def reset_timers(cycle_time: int) -> None:
 
     # new logic
     if buffer.logic == 1:
+        pygame.time.set_timer(CURRENT_CYCLE_CONV_EVENT, 0)
+        pygame.time.set_timer(CURRENT_CYCLE_VERT_EVENT, 0)
+        pygame.time.set_timer(CURRENT_CYCLE_XFER_EVENT, 0)
+
         pygame.time.set_timer(HORIZ_CYCLE_EVENT, cycle_time)
         pygame.time.delay(int(cycle_time / 2))
         pygame.time.set_timer(VERT_CYCLE_EVENT, cycle_time)

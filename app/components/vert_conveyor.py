@@ -3,8 +3,8 @@ from __future__ import annotations
 from pygame import Rect, draw
 from pygame.surface import Surface
 
-from app.config import SCREEN_HEIGHT, SCREEN_WIDTH
 from app.colors import BLACK, GREY, WHITE
+from app.config import HORIZ_CONV_CAPACITY, SCREEN_HEIGHT, SCREEN_WIDTH
 
 
 class VertConveyor:
@@ -40,7 +40,7 @@ class VertConveyor:
 
     def draw(self, window: Surface, conv_pos: int) -> None:
 
-        self.width = SCREEN_WIDTH / 10
+        self.width = SCREEN_WIDTH / HORIZ_CONV_CAPACITY
         self.height = SCREEN_HEIGHT * 0.8
         self.x_pos = SCREEN_WIDTH - ((conv_pos + 1) * self.width)
         self.y_pos = (SCREEN_HEIGHT - self.height) / 2

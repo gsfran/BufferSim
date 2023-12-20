@@ -5,6 +5,7 @@ from app.buffer_system import BASE_CYCLE_TIME
 from app.colors import BG_COLOR
 from app.config import FPS, WINDOW
 from app.events import handle_event, reset_timers
+from app.ui import ui
 
 
 def main() -> None:
@@ -17,9 +18,10 @@ def main() -> None:
             print(event)
             handle_event(event)
 
-        dt = (clock.tick(FPS) / (1000 * buffer.speed))
+        clock.tick(FPS)
         WINDOW.fill(BG_COLOR)
         buffer.draw(WINDOW)
+        ui.draw(WINDOW)
         pygame.display.update()
 
 
