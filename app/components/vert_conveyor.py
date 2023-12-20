@@ -3,7 +3,7 @@ from __future__ import annotations
 from pygame import Rect, draw
 from pygame.surface import Surface
 
-from app import SCREEN_HEIGHT, SCREEN_WIDTH
+from app.config import SCREEN_HEIGHT, SCREEN_WIDTH
 from app.colors import BLACK, GREY, WHITE
 
 
@@ -30,6 +30,7 @@ class VertConveyor:
     def __init__(self, capacity: int, part_height: int) -> None:
         self.capacity = capacity
         self.part_height = part_height
+
         self.build()
 
     def build(self) -> None:

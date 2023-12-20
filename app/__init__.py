@@ -1,10 +1,7 @@
 import pygame
 
-pygame.init()
+from app.buffer_system import BufferSystem, TOTAL_CAPACITY
 
-FPS = 60
-(SCREEN_WIDTH, SCREEN_HEIGHT) = (1920, 1080)
-SPEEDS = [2 ** _ for _ in range(6)]
-WINDOW = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-pygame.display.set_caption("BufferSim")
+buffer = BufferSystem(capacity=TOTAL_CAPACITY)
+clock = pygame.time.Clock()

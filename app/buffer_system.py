@@ -1,16 +1,17 @@
 from random import randint
+from types import MethodType
 
 import pygame
 from pygame import Rect, draw
 from pygame.surface import Surface
 
-from . import SCREEN_HEIGHT, SCREEN_WIDTH, FPS, SPEEDS
+from .config import SCREEN_HEIGHT, SCREEN_WIDTH
 from .colors import BLACK, GREY
 from .components import HorizConveyor, VertConveyor, XferCarriage
 
-HORIZ_CYCLE_EVENT = pygame.USEREVENT
-VERT_CYCLE_EVENT = pygame.USEREVENT + 1
-CURRENT_CYCLE_EVENT = pygame.USEREVENT + 2
+
+BASE_CYCLE_TIME = 3000  # ms
+TOTAL_CAPACITY = 150
 
 
 class BufferSystem:
@@ -18,14 +19,13 @@ class BufferSystem:
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity
         self.max_pos = (capacity / 2) - 1
-        self.speed = SPEEDS[0]  # sim speed
-        # self.cycle_time = int(3000 / self.speed)  # ms
-        self.new_logic = False
-        self.cycle_time = 200  # ms
+        self.speed = 1.0  # sim speed
+        self.logic = 0  # buffer logic selection
 
         self.width = SCREEN_WIDTH / 5
         self.height = SCREEN_HEIGHT * 0.8
-        self.pitch_height = self.height / (self.capacity / 2)
+        self.pitch_height = self.height / (self.capacity / 2)  # 1 pitch = 10mm
+        self.scale = self.pitch_height / 10  # pixels per 1 mm
         self.part_height = self.pitch_height / 2
 
         self.inlet_pos = 4
@@ -33,6 +33,7 @@ class BufferSystem:
         self.autorun: bool = True
         self.downstream_paused: bool = False
         self.upstream_paused: bool = True
+
         self.build()
 
     def build(self) -> None:
@@ -46,29 +47,12 @@ class BufferSystem:
         self.conveyor = HorizConveyor(part_height=self.part_height)
         self.xfer = XferCarriage(initial_pos=int(self.capacity/2)-1)
 
-    @property
-    def part_at_inlet_bottom(self) -> bool:
-        return self.conveyor.contents[self.inlet_pos]
+    def reset_buffer(self) -> None:
+        self.build()
 
-    @property
-    def part_at_outlet_bottom(self) -> bool:
-        return self.conveyor.contents[self.outlet_pos]
-
-    @property
-    def part_at_inlet_top(self) -> bool:
-        return self.inlet.contents[self.xfer.position]
-
-    @property
-    def part_at_outlet_top(self) -> bool:
-        return self.outlet.contents[self.xfer.position]
-
-    @property
-    def buffer_full(self) -> bool:
-        if self.xfer.position == self.max_pos and (
-            self.part_at_inlet_top and self.part_at_outlet_top
-        ):
-            return True
-        return False
+    def quit(self) -> None:
+        pygame.quit()
+        exit()
 
     def draw(self, window: Surface) -> None:
 
@@ -97,8 +81,19 @@ class BufferSystem:
         ]
         draw.line(window, BLACK, *center_line)
 
-    def index_inlet(self) -> None:
+    def manual_control(self, move_command: MethodType) -> None:
+        """
+        Prevents manual control inputs from executing during autorun mode
 
+        """
+        if not self.autorun:
+            move_command()
+
+    def index_inlet(self) -> None:
+        """
+        Indexes the inlet-side vertical conveyor upwards.
+
+        """
         if self.part_at_inlet_top:
             self.move_xfer_up()
 
@@ -158,13 +153,13 @@ class BufferSystem:
     def toggle_autorun(self) -> None:
         self.autorun = not self.autorun
 
-    def toggle_newlogic(self) -> None:
-        self.new_logic = not self.new_logic
-        self.reset()
+    def set_logic(self, logic: int) -> None:
+        self.logic = logic
+        self.reset_buffer()
 
     def toggle_downstream(self) -> None:
         self.downstream_paused = not self.downstream_paused
-    
+
     def toggle_upstream(self) -> None:
         self.upstream_paused = not self.upstream_paused
 
@@ -194,30 +189,57 @@ class BufferSystem:
         ):
             self.move_xfer_down()
 
-    def old_cycle(self) -> None:
-
-        delay_time = int(self.cycle_time / 4)
+    def current_cycle_conv(self) -> None:
+        # Current Logic Conveyor Index
 
         if not self.buffer_full:
-            # Conveyor index
             self.index_conveyor()
-            pygame.time.delay(delay_time)
-            # Inlet/Outlet index
+
+    def current_cycle_vert(self) -> None:
+        # Current Logic Inlet/Outlet Index and Transfer Move
+        if not self.buffer_full:
             if self.xfer.position < self.max_pos and self.part_at_inlet_top:
                 self.move_xfer_up()
-            self.index_inlet()
-            if not self.downstream_paused:
-                self.index_outlet()
+            if self.part_at_inlet_bottom:
+                self.index_inlet()
+        if not self.downstream_paused and not self.part_at_outlet_bottom:
+            self.index_outlet()
+        if self.xfer.position > 2 and not (
+            self.part_at_inlet_top or self.part_at_outlet_top
+        ):
+            self.move_xfer_down()
 
-            if self.xfer.position > 1 and not (
-                self.part_at_inlet_top or self.part_at_outlet_top
-            ):
-                self.move_xfer_down()
+    def current_cycle_xfer(self) -> None:
+        # Pusher
+        if self.part_at_inlet_top and not self.part_at_outlet_top:
+            self.transfer_push()
 
-            pygame.time.delay(delay_time)
+    @property
+    def cycle_time(self) -> int:
+        self._cycle_time = int(BASE_CYCLE_TIME / self.speed)
+        # print(self._cycle_time)
+        return self._cycle_time
 
-            # Pusher
-            if self.part_at_inlet_top and not self.part_at_outlet_top:
-                self.transfer_push()
+    @property
+    def part_at_inlet_bottom(self) -> bool:
+        return self.conveyor.contents[self.inlet_pos]
 
-            pygame.time.delay(delay_time)
+    @property
+    def part_at_outlet_bottom(self) -> bool:
+        return self.conveyor.contents[self.outlet_pos]
+
+    @property
+    def part_at_inlet_top(self) -> bool:
+        return self.inlet.contents[self.xfer.position]
+
+    @property
+    def part_at_outlet_top(self) -> bool:
+        return self.outlet.contents[self.xfer.position]
+
+    @property
+    def buffer_full(self) -> bool:
+        if self.xfer.position == self.max_pos and (
+            self.part_at_inlet_top and self.part_at_outlet_top
+        ):
+            return True
+        return False
