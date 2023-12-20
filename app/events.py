@@ -6,10 +6,12 @@ from app.buffer import (CURRENT_CYCLE_EVENT, HORIZ_CYCLE_EVENT,
                         VERT_CYCLE_EVENT, BufferSystem)
 
 
-def handle_event(buffer: BufferSystem, event: pygame.event.Event) -> None:
+def handle_event(
+    buffer: BufferSystem, event: pygame.event.Event, speed: float
+) -> None:
 
     if event.type == pygame.KEYDOWN:
-        handle_input(buffer=buffer, event=event)
+        handle_input(buffer=buffer, event=event, speed=speed)
 
     elif buffer.autorun and buffer.new_logic:
         if event.type == HORIZ_CYCLE_EVENT:
@@ -26,7 +28,9 @@ def handle_event(buffer: BufferSystem, event: pygame.event.Event) -> None:
             buffer.old_cycle()
 
 
-def handle_input(buffer: BufferSystem, event: pygame.event.Event) -> None:
+def handle_input(
+    buffer: BufferSystem, event: pygame.event.Event, speed: float
+) -> None:
 
     INPUT_DICT = {
         pygame.K_u: buffer.index_conveyor,
@@ -40,7 +44,9 @@ def handle_input(buffer: BufferSystem, event: pygame.event.Event) -> None:
         pygame.K_d: buffer.toggle_downstream,
         pygame.K_f: buffer.toggle_upstream,
         pygame.K_r: buffer.reset,
-        pygame.K_q: buffer.quit
+        pygame.K_q: buffer.quit,
+        pygame.K_PLUS: buffer.speed_up,
+        pygame.K_MINUS: buffer.speed_down
     }
 
     if event.key in INPUT_DICT.keys():

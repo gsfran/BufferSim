@@ -4,7 +4,7 @@ import pygame
 from pygame import Rect, draw
 from pygame.surface import Surface
 
-from . import SCREEN_HEIGHT, SCREEN_WIDTH
+from . import SCREEN_HEIGHT, SCREEN_WIDTH, FPS, SPEEDS
 from .colors import BLACK, GREY
 from .components import HorizConveyor, VertConveyor, XferCarriage
 
@@ -18,6 +18,8 @@ class BufferSystem:
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity
         self.max_pos = (capacity / 2) - 1
+        self.speed = SPEEDS[0]  # sim speed
+        # self.cycle_time = int(3000 / self.speed)  # ms
         self.new_logic = False
         self.cycle_time = 200  # ms
 
@@ -94,13 +96,6 @@ class BufferSystem:
             (self.rect.centerx, self.rect.bottom)
         ]
         draw.line(window, BLACK, *center_line)
-
-    def reset(self) -> None:
-        self.build()
-    
-    def quit(self) -> None:
-        pygame.quit()
-        exit()
 
     def index_inlet(self) -> None:
 
