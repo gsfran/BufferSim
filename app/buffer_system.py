@@ -28,9 +28,9 @@ class BufferSystem:
 
         self.inlet_pos = int(HORIZ_CONV_CAPACITY / 2) - 1
         self.outlet_pos = int(HORIZ_CONV_CAPACITY / 2)
-        self.autorun: bool = True
+        self.autorun: bool = False
         self.downstream_paused: bool = False
-        self.upstream_paused: bool = True
+        self.upstream_paused: bool = False
 
         self.build()
 
@@ -192,9 +192,15 @@ class BufferSystem:
     def current_cycle_vert(self) -> None:
         # Current Logic Inlet/Outlet Index and Transfer Move
         if not self.buffer_full:
-            if self.xfer.position < self.max_pos and self.part_at_inlet_top:
+            if self.xfer.position < self.max_pos and (
+                self.part_at_inlet_top and self.part_at_outlet_top
+            ):
                 self.move_xfer_up()
-            if self.part_at_inlet_bottom:
+            if self.part_at_inlet_bottom or not (
+                (
+                    self.part_at_inlet_bottom or self.part_at_inlet_top
+                ) or self.part_at_outlet_top
+            ):
                 self.index_inlet()
         if not self.downstream_paused and not self.part_at_outlet_bottom:
             self.index_outlet()

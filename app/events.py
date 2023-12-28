@@ -20,13 +20,13 @@ def handle_event(event: pygame.event.Event) -> None:
     elif event.type == pygame.KEYDOWN:
         handle_input(event=event)
 
-    elif buffer.autorun and buffer.logic == 1:
+    elif buffer.autorun and buffer.logic == 0:
         if event.type == HORIZ_CYCLE_EVENT:
             buffer.horizontal_cycle()
         if event.type == VERT_CYCLE_EVENT:
             buffer.vertical_cycle()
 
-    elif buffer.autorun and buffer.logic == 0:
+    elif buffer.autorun and buffer.logic != 0:
         if event.type == CURRENT_CYCLE_CONV_EVENT:
             buffer.current_cycle_conv()
         if event.type == CURRENT_CYCLE_VERT_EVENT:
@@ -90,7 +90,7 @@ def speed_down() -> None:
 
 def reset_timers(cycle_time: int) -> None:
     # current logic
-    if buffer.logic == 0:
+    if buffer.logic != 0:
         pygame.time.set_timer(HORIZ_CYCLE_EVENT, 0)
         pygame.time.set_timer(VERT_CYCLE_EVENT, 0)
 
@@ -101,7 +101,7 @@ def reset_timers(cycle_time: int) -> None:
         pygame.time.set_timer(CURRENT_CYCLE_XFER_EVENT, cycle_time)
 
     # new logic
-    if buffer.logic == 1:
+    if buffer.logic == 0:
         pygame.time.set_timer(CURRENT_CYCLE_CONV_EVENT, 0)
         pygame.time.set_timer(CURRENT_CYCLE_VERT_EVENT, 0)
         pygame.time.set_timer(CURRENT_CYCLE_XFER_EVENT, 0)
