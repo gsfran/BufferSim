@@ -171,7 +171,9 @@ class BufferSystem:
             self.index_outlet()
 
         if self.xfer.position < self.max_pos and (
-            self.part_at_inlet_top and self.part_at_outlet_top
+            (
+                self.part_at_inlet_top and self.part_at_outlet_top
+            ) and self.part_at_inlet_bottom
         ):
             self.move_xfer_up()
 
@@ -197,7 +199,7 @@ class BufferSystem:
             ):
                 self.move_xfer_up()
             if self.part_at_inlet_bottom or not (
-                (
+                (  # fix for leaving part at inaccessible slot
                     self.part_at_inlet_bottom or self.part_at_inlet_top
                 ) or self.part_at_outlet_top
             ):
