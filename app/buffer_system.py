@@ -234,8 +234,6 @@ class BufferSystem:
 
         if self.config == 0:
 
-            if not self.part_at_outlet_bottom and not self.downstream_stoppage:
-                outlet = True
             if self.part_at_inlet_bottom and self.downstream_stoppage:
                 inlet = True
 
