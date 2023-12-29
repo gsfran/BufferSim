@@ -1,3 +1,4 @@
+from abc import ABC
 from random import randint
 from types import MethodType
 
@@ -16,9 +17,10 @@ class BufferSystem:
 
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity
-        self.max_pos = (capacity / 2) - 1
+        self.max_pos = (capacity / 2) - 1  # uppermost transfer position
+        self.min_pos = 1  # lowermost transfer position
         self.speed = 1.0  # sim speed
-        self.logic = 0  # buffer logic selection
+        self.config = 0  # buffer configuration and logic
 
         self.width = SCREEN_WIDTH / (HORIZ_CONV_CAPACITY / 2)
         self.height = SCREEN_HEIGHT * 0.8
@@ -28,9 +30,10 @@ class BufferSystem:
 
         self.inlet_pos = int(HORIZ_CONV_CAPACITY / 2) - 1
         self.outlet_pos = int(HORIZ_CONV_CAPACITY / 2)
+
         self.autorun: bool = False
-        self.downstream_paused: bool = False
-        self.upstream_paused: bool = False
+        self.downstream_stoppage: bool = False
+        self.part_inflow: bool = False
 
         self.build()
 
@@ -75,9 +78,9 @@ class BufferSystem:
         draw.lines(window, BLACK, True, self.corners)
         draw.line(window, BLACK, self.rect.midtop, self.rect.midbottom)
 
-    def manual_control(self, move_command: MethodType) -> None:
+    def manual_input(self, move_command: MethodType) -> None:
         """
-        Prevents manual control inputs from executing during autorun mode
+        Checks if autorun is active before executing manual controls.
 
         """
         if not self.autorun:
@@ -123,9 +126,11 @@ class BufferSystem:
             self.outlet.contents[self.xfer.position] = True
             self.inlet.contents[self.xfer.position] = False
 
-    def index_conveyor(self) -> None:
+    def cycle_conveyor(self) -> None:
 
-        if randint(0, 100) % 3 and not self.upstream_paused:
+        if randint(0, 100) % 3 and (
+            self.part_inflow and not self.upstream_inhibit
+        ):
             new_part = True
         else:
             new_part = False
@@ -147,71 +152,43 @@ class BufferSystem:
     def toggle_autorun(self) -> None:
         self.autorun = not self.autorun
 
-    def set_logic(self, logic: int) -> None:
-        self.logic = logic
+    def enable_step_mode(self) -> None:
+        pass
+
+    def set_config(self, config: int) -> None:
+
+        self.config = config
+        if config == 0:
+            self.min_pos = 1
+
+        else:
+            self.min_pos = 2
+
+        self.part_inflow = False
+        self.downstream_stoppage = False
         self.reset_buffer()
 
-    def toggle_downstream(self) -> None:
-        self.downstream_paused = not self.downstream_paused
+    def toggle_downstream_fault(self) -> None:
+        self.downstream_stoppage = not self.downstream_stoppage
 
-    def toggle_upstream(self) -> None:
-        self.upstream_paused = not self.upstream_paused
+    def toggle_part_inflow(self) -> None:
+        self.part_inflow = not self.part_inflow
 
-    def horizontal_cycle(self) -> None:
+    def cycle_verticals(self) -> None:
 
-        if not self.buffer_full:
-            self.index_conveyor()
+        inlet_cycle, outlet_cycle = self.vert_strategy
 
-        if self.part_at_inlet_top and not self.part_at_outlet_top:
-            self.transfer_push()
-
-    def vertical_cycle(self) -> None:
-
-        if not self.part_at_outlet_bottom and not self.downstream_paused:
-            self.index_outlet()
-
-        if self.xfer.position < self.max_pos and (
-            (
-                self.part_at_inlet_top and self.part_at_outlet_top
-            ) and self.part_at_inlet_bottom
-        ):
-            self.move_xfer_up()
-
-        if self.part_at_inlet_bottom and self.downstream_paused:
+        if inlet_cycle:
             self.index_inlet()
 
-        if self.xfer.position > 1 and not (
-            self.part_at_inlet_top or self.part_at_outlet_top
-        ):
-            self.move_xfer_down()
-
-    def current_cycle_conv(self) -> None:
-        # Current Logic Conveyor Index
-
-        if not self.buffer_full:
-            self.index_conveyor()
-
-    def current_cycle_vert(self) -> None:
-        # Current Logic Inlet/Outlet Index and Transfer Move
-        if not self.buffer_full:
-            if self.xfer.position < self.max_pos and (
-                self.part_at_inlet_top and self.part_at_outlet_top
-            ):
-                self.move_xfer_up()
-            if self.part_at_inlet_bottom or not (
-                (  # fix for leaving part at inaccessible slot
-                    self.part_at_inlet_bottom or self.part_at_inlet_top
-                ) or self.part_at_outlet_top
-            ):
-                self.index_inlet()
-        if not self.downstream_paused and not self.part_at_outlet_bottom:
+        if outlet_cycle:
             self.index_outlet()
-        if self.xfer.position > 2 and not (
+
+    def cycle_xfer_push(self) -> None:
+        if self.xfer.position > self.min_pos and not (
             self.part_at_inlet_top or self.part_at_outlet_top
         ):
             self.move_xfer_down()
-
-    def current_cycle_xfer(self) -> None:
         # Pusher
         if self.part_at_inlet_top and not self.part_at_outlet_top:
             self.transfer_push()
@@ -239,9 +216,58 @@ class BufferSystem:
         return self.outlet.contents[self.xfer.position]
 
     @property
-    def buffer_full(self) -> bool:
-        if self.xfer.position == self.max_pos and (
-            self.part_at_inlet_top and self.part_at_outlet_top
-        ):
+    def infeed_part_count(self) -> int:
+        return self.conveyor.contents[:self.outlet_pos].count(True)
+
+    @property
+    def upstream_inhibit(self) -> bool:
+        if (
+            2 * (self.xfer.position) + self.infeed_part_count
+        ) >= (self.capacity - 2):
             return True
         return False
+
+    @property
+    def vert_strategy(self) -> (bool, bool):
+
+        inlet = outlet = False
+
+        if self.config == 0:
+
+            if not self.part_at_outlet_bottom and not self.downstream_stoppage:
+                outlet = True
+            if self.part_at_inlet_bottom and self.downstream_stoppage:
+                inlet = True
+
+        if self.config == 1:
+
+            # original config, inlet cycles as long as no crash will occur
+            if not self.part_at_inlet_top or self.xfer.position < self.max_pos:
+                inlet = True
+
+        elif self.config == 2:
+
+            # next revision, inlet cycles conditionally if part is present
+            if not self.part_at_inlet_top or self.xfer.position < self.max_pos:
+                if self.part_at_inlet_bottom:
+                    inlet = True
+
+        elif self.config == 3:
+
+            if not self.part_at_inlet_top or self.xfer.position < self.max_pos:
+                if self.part_at_inlet_bottom:
+                    inlet = True
+
+            # fix for leaving part at inaccessible slot
+            if not (
+                (
+                    self.part_at_inlet_bottom or self.part_at_inlet_top
+                ) or self.part_at_outlet_top
+            ):
+                inlet = True
+
+        # outlet logic, unchanged from the start
+        if not self.downstream_stoppage and not self.part_at_outlet_bottom:
+            outlet = True
+
+        return inlet, outlet
