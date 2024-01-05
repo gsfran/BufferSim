@@ -13,5 +13,8 @@ pygame.display.set_caption("BufferSim")
 # simulation frames rendered per second
 FPS = 144
 
-# indexing conveyor capacity onscreen
+# indexing conveyor capacity (scales object widths)
 HORIZ_CONV_CAPACITY = 16
+
+# total capacity of the buffer tower
+BUFFER_CAPACITY = 150

@@ -1,7 +1,7 @@
 import pygame
 
-from app.buffer_system import BufferSystem, TOTAL_CAPACITY
+from app.buffer_system import BufferSystem
 
 
-buffer = BufferSystem(capacity=TOTAL_CAPACITY)
+buffer = BufferSystem()
 clock = pygame.time.Clock()

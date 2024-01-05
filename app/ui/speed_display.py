@@ -13,16 +13,14 @@ SPEED_DISPLAY_FONT: Font = pygame.font.SysFont("Helvetica", 30, bold=True)
 
 
 class SpeedDisplay:
-    """
-    Display block showing the current simulation speed.
-    """
+    """Display block showing the current simulation speed."""
 
     def __init__(self) -> None:
         self.bg_color = GREY
         self.outline_color = BLACK
         self.text_color = BLACK
 
-        self.width = SCREEN_WIDTH * 0.15
+        self.width = SCREEN_WIDTH * 0.2
         self.height = SCREEN_HEIGHT * 0.10
 
     def draw(self, window: Surface) -> None:
@@ -40,11 +38,23 @@ class SpeedDisplay:
         ]
         draw.lines(window, self.outline_color, True, corners)
 
-        text = f'SPEED: {buffer.speed}'
+        speed_text = f'Speed Multiplier: {buffer.speed}x'
+        cycle_time_text = f'Cycle Time: {buffer.cycle_time}ms'
 
         text_surface = SPEED_DISPLAY_FONT.render(
-           text, True, self.text_color
+            speed_text, True, self.text_color
         )
-        txt_padding = (self.width * 0.125, self.height * 0.125)
-        location = self.rect.topleft + txt_padding
-        window.blit(text_surface, location)
+        cycle_time_surface = SPEED_DISPLAY_FONT.render(
+            cycle_time_text, True, self.text_color
+        )
+
+        x_padding = self.width * 0.1
+        y_padding = self.height * 0.1
+
+        speed_location = (self.rect.left + x_padding,
+                          self.rect.top + y_padding)
+        cycle_time_location = (self.rect.left + x_padding,
+                               self.rect.centery + y_padding)
+
+        window.blit(text_surface, speed_location)
+        window.blit(cycle_time_surface, cycle_time_location)
