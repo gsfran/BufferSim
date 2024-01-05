@@ -4,7 +4,7 @@ from pygame.font import Font
 from pygame.surface import Surface
 
 from app import buffer
-from app.colors import BLACK, GREY
+from app.colors import BLACK, LIGHT_GREY
 from app.config import SCREEN_HEIGHT, SCREEN_WIDTH
 
 SPEED_DISPLAY_FONT: Font = pygame.font.SysFont("Helvetica", 30, bold=True)
@@ -14,7 +14,7 @@ class SpeedDisplay:
     """Display block showing the current simulation speed."""
 
     def __init__(self) -> None:
-        self.bg_color = GREY
+        self.bg_color = LIGHT_GREY
         self.outline_color = BLACK
         self.text_color = BLACK
 
