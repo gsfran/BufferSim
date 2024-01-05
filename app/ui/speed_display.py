@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import pygame
 from pygame import Rect, draw
 from pygame.font import Font
