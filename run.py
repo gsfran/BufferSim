@@ -14,11 +14,12 @@ def main() -> None:
 
     while True:
 
+        dt = clock.tick(FPS) / 1000.0
+
         for event in pygame.event.get():
             print(event)
             handle_event(event)
 
-        clock.tick(FPS)
         WINDOW.fill(BG_COLOR)
         buffer.draw(WINDOW)
         ui.draw(WINDOW)

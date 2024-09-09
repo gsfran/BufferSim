@@ -7,7 +7,7 @@ from app import buffer
 from app.colors import BLACK, LIGHT_GREY
 from app.config import SCREEN_HEIGHT, SCREEN_WIDTH
 
-SPEED_DISPLAY_FONT: Font = pygame.font.SysFont("Helvetica", 30, bold=True)
+SPEED_DISPLAY_FONT: Font = pygame.font.SysFont("Courier New", 30, bold=True)
 
 
 class SpeedDisplay:
@@ -18,12 +18,12 @@ class SpeedDisplay:
         self.outline_color = BLACK
         self.text_color = BLACK
 
-        self.width = SCREEN_WIDTH * 0.2
+        self.width = SCREEN_WIDTH * 0.3
         self.height = SCREEN_HEIGHT * 0.10
 
     def draw(self, window: Surface) -> None:
 
-        self.x_pos = (SCREEN_WIDTH * 0.975) - self.width
+        self.x_pos = (SCREEN_WIDTH * 0.95) - self.width
         self.y_pos = (SCREEN_HEIGHT * 0.025)
 
         self.rect = Rect(self.x_pos, self.y_pos, self.width, self.height)

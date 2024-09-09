@@ -27,9 +27,19 @@ class VertConveyor:
 
     """
 
-    def __init__(self, capacity: int, part_height: int) -> None:
+    def __init__(self, capacity: int, part_height: int, conv_pos: int) -> None:
         self.capacity = capacity
         self.part_height = part_height
+        self.conv_pos = conv_pos
+
+        self.width = SCREEN_WIDTH / HORIZ_CONV_CAPACITY
+        self.height = SCREEN_HEIGHT * 0.8
+
+        self.x_pos = SCREEN_WIDTH - ((conv_pos + 1) * self.width)
+        self.y_pos = (SCREEN_HEIGHT - self.height) / 2
+
+        self.pitch_height = self.height / self.capacity
+        self.animation_offset = 0
 
         self.build()
 
@@ -38,15 +48,12 @@ class VertConveyor:
         for _ in range(self.capacity):
             self.contents.append(False)
 
-    def draw(self, window: Surface, conv_pos: int) -> None:
+    def draw(self, window: Surface) -> None:
 
-        self.width = SCREEN_WIDTH / HORIZ_CONV_CAPACITY
-        self.height = SCREEN_HEIGHT * 0.8
-        self.x_pos = SCREEN_WIDTH - ((conv_pos + 1) * self.width)
-        self.y_pos = (SCREEN_HEIGHT - self.height) / 2
+        if abs(self.animation_offset) >= self.pitch_height:
+            self.animation_offset = 0
 
         self.rect = Rect(self.x_pos, self.y_pos, self.width, self.height)
-        self.pitch_height = self.height / self.capacity
 
         draw.rect(window, GREY, self.rect)
         self.draw_contents(window=window)
@@ -55,7 +62,10 @@ class VertConveyor:
 
         for i, part in enumerate(self.contents):
             # +1 is to account for y_pos being the top of the rect
-            y_pos = self.rect.bottom - (self.pitch_height * (i + 1))
+            y_pos = self.animation_offset + self.rect.bottom - (
+                self.pitch_height * (i + 1)
+            )
+
             r = Rect(self.rect.left, y_pos, self.width, self.pitch_height)
             corners = [r.topleft, r.topright, r.bottomright, r.bottomleft]
             if part:
@@ -67,6 +77,7 @@ class VertConveyor:
             draw.lines(window, BLACK, True, corners)
 
     def index_up(self) -> None:
+        self.animation_active = True
         new_contents = [False] + self.contents[:-1]
         self.contents = new_contents
 

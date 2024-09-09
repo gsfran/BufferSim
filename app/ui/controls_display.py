@@ -9,7 +9,7 @@ from app.config import SCREEN_HEIGHT, SCREEN_WIDTH
 
 FONT_SIZE = 30
 CONTROLS_DISPLAY_FONT: Font = pygame.font.SysFont(
-    "Helvetica", FONT_SIZE, bold=True)
+    "Courier", FONT_SIZE, bold=True)
 
 
 class ControlsDisplay:
@@ -20,8 +20,8 @@ class ControlsDisplay:
         self.outline_color = BLACK
         self.text_color = BLACK
 
-        self.width = SCREEN_WIDTH * 0.25
-        self.height = SCREEN_HEIGHT * 0.6
+        self.width = SCREEN_WIDTH * 0.33
+        self.height = SCREEN_HEIGHT * 0.8
 
     def draw(self, window: Surface) -> None:
 
@@ -39,13 +39,23 @@ class ControlsDisplay:
         draw.lines(window, self.outline_color, True, corners)
 
         lines = [
-            'MANUAL CONTROLS', '',
-            'U -- Horizontal Conveyor',
-            'I -- Inlet Conveyor',
-            'O -- Outlet Conveyor',
-            'P -- Transfer Push',
-            '[ -- Move Transfer Down',
-            '] -- Move Transfer Up'
+            'CONTROLS:',
+            'A      Auto / Manual Mode',
+            'E      Speed Up',
+            'W      Speed Down',
+            'D      Halt Downstream Cell',
+            'F      Halt Upstream Cell',
+            'R      Reset Simulation',
+            'Q      Quit',
+            '', '',
+
+            'MANUAL MODE:',
+            'U      Horizontal Conveyor',
+            'I      Inlet Conveyor',
+            'O      Outlet Conveyor',
+            'P      Transfer Push',
+            '[      Move Transfer Down',
+            ']      Move Transfer Up'
         ]
 
         text = []

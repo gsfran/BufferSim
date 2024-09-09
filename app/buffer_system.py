@@ -48,13 +48,24 @@ class BufferSystem:
     def build(self) -> None:
         """Initializes the system's subcomponents."""
         self.inlet = VertConveyor(
-            capacity=int(self.capacity/2), part_height=self.part_height
+            capacity=int(self.capacity/2),
+            part_height=self.part_height,
+            conv_pos=self.inlet_pos
         )
+
         self.outlet = VertConveyor(
-            capacity=int(self.capacity/2), part_height=self.part_height
+            capacity=int(self.capacity/2),
+            part_height=self.part_height,
+            conv_pos=self.outlet_pos
         )
-        self.conveyor = HorizConveyor(part_height=self.part_height)
-        self.xfer = XferCarriage(initial_pos=int(self.capacity/2)-1)
+
+        self.conveyor = HorizConveyor(
+            part_height=self.part_height
+        )
+
+        self.xfer = XferCarriage(
+            initial_pos=int(self.capacity/2)-1
+        )
 
     def reset_buffer(self) -> None:
         self.build()
@@ -80,8 +91,8 @@ class BufferSystem:
         self.pitch_height = self.height / (self.capacity / 2)
 
         draw.rect(window, GREY, self.rect)
-        self.inlet.draw(window=window, conv_pos=self.inlet_pos)
-        self.outlet.draw(window=window, conv_pos=self.outlet_pos)
+        self.inlet.draw(window=window)
+        self.outlet.draw(window=window)
         self.conveyor.draw(window=window)
         self.xfer.draw(window=window, buffer_rect=self.rect,
                        pitch_height=self.pitch_height)
@@ -213,7 +224,7 @@ class BufferSystem:
         self.part_inflow = not self.part_inflow
 
     def cycle_verticals(self) -> None:
-        """Calls a crude implementation of the Strategy design pattern
+        """Calls an implementation of the Strategy design pattern
         to handle various logic configurations. Based on the returned
         tuple, indexes the vertical conveyors appropriately."""
 
@@ -277,7 +288,7 @@ class BufferSystem:
         return False
 
     @property
-    def vert_strategy(self) -> (bool, bool):
+    def vert_strategy(self) -> tuple[bool, bool]:
         """Determines motion of the vertical conveyors based on system state
         and configuration. Returns a tuple of booleans representing the
         two vertical conveyors.
